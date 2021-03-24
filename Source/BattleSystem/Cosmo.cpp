@@ -3,6 +3,10 @@
 
 #include "Cosmo.h"
 
+#include <Kismet/KismetSystemLibrary.h>
+
+#define PRINT(fmt, ...) UKismetSystemLibrary::PrintString(GetWorld(), FString::Printf(TEXT(fmt), __VA_ARGS__))
+
 // Sets default values
 ACosmo::ACosmo()
 {
@@ -21,6 +25,8 @@ ACosmo::ACosmo()
 	Model = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Model"));
 	Model->SetupAttachment(Root);
 
+	Collider = CreateDefaultSubobject<UBoxComponent>(TEXT("Collider"));
+	Collider->SetupAttachment(Root);
 }
 
 // Called when the game starts or when spawned
@@ -36,7 +42,7 @@ void ACosmo::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	// Camera movement
-	CameraPivot->AddLocalRotation(FRotator(0, -GetInputAxisValue("CameraH") * 0.3f, 0));
+	CameraPivot->AddLocalRotation(FRotator(0, -GetInputAxisValue("CameraH") * 60.0f * DeltaTime, 0));
 
 	// Movement
 	float X = GetInputAxisValue("Forward");
@@ -51,7 +57,7 @@ void ACosmo::Tick(float DeltaTime)
 	MotionTarget.Z = 0.0f;
 	Motion = FMath::Lerp(Motion, MotionTarget, DeltaTime * 10.0f);
 	
-	SetActorLocation(GetActorLocation() + Motion * SpeedLimit);
+	SetActorLocation(GetActorLocation() + (Motion * SpeedLimit + Motion * SpeedLimit * Running) * DeltaTime);
 
 	bool Moving = !MotionTarget.IsZero();
 
@@ -66,9 +72,9 @@ void ACosmo::Tick(float DeltaTime)
 	// Animation
 	UAnimInstance* AnimInst = Model->GetAnimInstance();
 	FBoolProperty* WalkingVar = FindFProperty<FBoolProperty>(AnimInst->GetClass(), "Walking");
-	if (WalkingVar) {
-		WalkingVar->SetPropertyValue_InContainer(AnimInst, Moving);
-	}
+	FBoolProperty* RunningVar = FindFProperty<FBoolProperty>(AnimInst->GetClass(), "Running");
+	WalkingVar->SetPropertyValue_InContainer(AnimInst, Moving);
+	RunningVar->SetPropertyValue_InContainer(AnimInst, Running);
 }
 
 // Called to bind functionality to input
@@ -79,5 +85,27 @@ void ACosmo::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("Forward");
 	PlayerInputComponent->BindAxis("Side");
 	PlayerInputComponent->BindAxis("CameraH");
+	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ACosmo::StartRun);
+	PlayerInputComponent->BindAction("Run", IE_Released, this, &ACosmo::EndRun);
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ACosmo::Interact);
 }
 
+
+void ACosmo::StartRun()
+{
+	Running = true;
+}
+
+
+void ACosmo::EndRun()
+{
+	Running = false;
+}
+
+
+void ACosmo::Interact()
+{
+	if (NPCInRange) {
+		NPCInRange->Interact();
+	}
+}

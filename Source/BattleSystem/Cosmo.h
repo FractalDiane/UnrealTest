@@ -5,10 +5,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 
+#include "NPC.h"
+#include "Utils/Macros.h"
+
 #include <Components/SceneComponent.h>
 #include <Camera/CameraComponent.h>
 #include <Components/SkeletalMeshComponent.h>
 #include <Engine/SkeletalMesh.h>
+#include <Components/BoxComponent.h>
 
 #include "Cosmo.generated.h"
 
@@ -26,6 +30,9 @@ private:
 	float SpeedLimit = 5;
 
 	FVector Motion = FVector::ZeroVector;
+	bool Running = false;
+
+	ANPC* NPCInRange = nullptr;
 
 	// Components
 	UPROPERTY(EditAnywhere)
@@ -34,6 +41,8 @@ private:
 	UCameraComponent* Camera;
 	UPROPERTY(EditAnywhere)
 	USkeletalMeshComponent* Model;
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* Collider;
 
 protected:
 	// Called when the game starts or when spawned
@@ -46,4 +55,10 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	SETTER(ANPC*, NPCInRange);
+
+private:
+	void StartRun();
+	void EndRun();
+	void Interact();
 };
