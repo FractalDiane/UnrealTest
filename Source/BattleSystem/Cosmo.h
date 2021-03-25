@@ -5,14 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 
-#include "NPC.h"
 #include "Utils/Macros.h"
-
-#include <Components/SceneComponent.h>
-#include <Camera/CameraComponent.h>
-#include <Components/SkeletalMeshComponent.h>
-#include <Engine/SkeletalMesh.h>
-#include <Components/BoxComponent.h>
 
 #include "Cosmo.generated.h"
 
@@ -32,17 +25,21 @@ private:
 	FVector Motion = FVector::ZeroVector;
 	bool Running = false;
 
-	ANPC* NPCInRange = nullptr;
+	bool AllowMovement = true;
+
+	//TArray<class AInteractible> InteractiblesInRange;
+	//TSet<class AInteractible*> InteractiblesInRange;
+	TArray<class AInteractible*> InteractiblesInRange;
 
 	// Components
 	UPROPERTY(EditAnywhere)
-	USceneComponent* CameraPivot;
+	class USceneComponent* CameraPivot;
 	UPROPERTY(EditAnywhere)
-	UCameraComponent* Camera;
+	class UCameraComponent* Camera;
 	UPROPERTY(EditAnywhere)
-	USkeletalMeshComponent* Model;
+	class USkeletalMeshComponent* Model;
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* Collider;
+	class UBoxComponent* Collider;
 
 protected:
 	// Called when the game starts or when spawned
@@ -55,10 +52,16 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	SETTER(ANPC*, NPCInRange);
+	SETTER(bool, AllowMovement)
+
+	void AddInteractibleInRange(class AInteractible* Target);
+	void RemoveInteractibleInRange(class AInteractible* Target);
 
 private:
 	void StartRun();
 	void EndRun();
+
 	void Interact();
+	UFUNCTION()
+	void EndInteract();
 };

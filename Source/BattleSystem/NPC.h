@@ -3,17 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
-#include "DialogueWidget.h"
-
-#include <GameFramework/Actor.h>
-#include <Components/SkeletalMeshComponent.h>
-#include <Components/SphereComponent.h>
+#include "Interactibles/Interactible.h"
 
 #include "NPC.generated.h"
 
 UCLASS()
-class BATTLESYSTEM_API ANPC : public AActor
+class BATTLESYSTEM_API ANPC : public AInteractible
 {
 	GENERATED_BODY()
 
@@ -24,15 +19,12 @@ private:
 	TArray<FString> DialogueText;
 
 	UPROPERTY(EditAnywhere)
-	USkeletalMeshComponent* Model;
-	UPROPERTY(EditAnywhere)
-	USphereComponent* TalkArea;
+	class USkeletalMeshComponent* Model;
 
-	//ADialogue* DialogueRef;
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<UUserWidget> DialogueWidgetRef;
+	TSubclassOf<class UUserWidget> DialogueWidgetRef;
 
-	//UDialogueWidget* Dialogue;
+	class UDialogueWidget* Dialogue;
 
 	bool PlayerInArea = false;
 	
@@ -48,11 +40,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void Interact();
-
-private:
-	UFUNCTION()
-	void SphereStartCol(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION()
-	void SphereEndCol(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex);
+	void Interact() override;
+	void InteractFinish() override;
 };

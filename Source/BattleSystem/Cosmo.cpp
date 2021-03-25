@@ -3,9 +3,12 @@
 
 #include "Cosmo.h"
 
-#include <Kismet/KismetSystemLibrary.h>
+#include "Interactibles/Interactible.h"
 
-#define PRINT(fmt, ...) UKismetSystemLibrary::PrintString(GetWorld(), FString::Printf(TEXT(fmt), __VA_ARGS__))
+#include <Components/SceneComponent.h>
+#include <Camera/CameraComponent.h>
+#include <Components/SkeletalMeshComponent.h>
+#include <Components/BoxComponent.h>
 
 // Sets default values
 ACosmo::ACosmo()
@@ -43,6 +46,10 @@ void ACosmo::Tick(float DeltaTime)
 	
 	// Camera movement
 	CameraPivot->AddLocalRotation(FRotator(0, -GetInputAxisValue("CameraH") * 60.0f * DeltaTime, 0));
+
+	if (!AllowMovement) {
+		return;
+	}
 
 	// Movement
 	float X = GetInputAxisValue("Forward");
@@ -91,6 +98,18 @@ void ACosmo::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 }
 
 
+void ACosmo::AddInteractibleInRange(AInteractible* Target)
+{
+	InteractiblesInRange.Add(Target);
+}
+
+
+void ACosmo::RemoveInteractibleInRange(AInteractible* Target)
+{
+	InteractiblesInRange.Remove(Target);
+}
+
+
 void ACosmo::StartRun()
 {
 	Running = true;
@@ -105,7 +124,16 @@ void ACosmo::EndRun()
 
 void ACosmo::Interact()
 {
-	if (NPCInRange) {
-		NPCInRange->Interact();
+	if (AllowMovement && InteractiblesInRange.Num() > 0) {
+		AllowMovement = false;
+		InteractiblesInRange[0]->OnInteractionFinished.BindDynamic(this, &ACosmo::EndInteract);
+		InteractiblesInRange[0]->Interact();
 	}
+}
+
+
+void ACosmo::EndInteract()
+{
+	InteractiblesInRange[0]->OnInteractionFinished.Unbind();
+	AllowMovement = true;
 }
