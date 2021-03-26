@@ -37,6 +37,10 @@ void ACosmo::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	UUserWidget* Widget = CreateWidget(GetWorld(), PlayerHUDRef, TEXT("PlayerHUD"));
+
+	PlayerHUD = Cast<UPlayerHUD>(Widget);
+	Widget->AddToViewport();
 }
 
 // Called every frame

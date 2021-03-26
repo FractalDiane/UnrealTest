@@ -5,7 +5,7 @@
 
 #include <Components/RichTextBlock.h>
 #include <Components/TextBlock.h>
-#include <Animation/WidgetAnimation.h>
+#include <Kismet/GameplayStatics.h>
 
 void UDialogueWidget::NativeConstruct()
 {
@@ -33,7 +33,7 @@ void UDialogueWidget::SetName(const FText& Name)
 }
 
 
-void UDialogueWidget::SetDialogueText(const TArray<FString>& _Text)
+void UDialogueWidget::SetDialogueText(const TArray<FText>& _Text)
 {
 	Text = _Text;
 }
@@ -43,6 +43,7 @@ void UDialogueWidget::Start()
 {
 	Page = 0;
 	CharactersVisible = 0;
+	CurrentText = Text[Page].ToString();
 	UpdateVisibleText();
 
 	BindToAnimationFinished(AnimFadein, EventStart);
@@ -61,7 +62,9 @@ void UDialogueWidget::EnableInput()
 
 void UDialogueWidget::IncrementCharactersVisible()
 {
-	if (++CharactersVisible >= Text[Page].Len()) {
+	CharactersVisible++;
+	UGameplayStatics::PlaySound2D(GetWorld(), TextSound, 1.0f, TextSoundPitch);
+	if (CharactersVisible >= CurrentText.Len()) {
 		GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 		TextRunning = false;
 	}
@@ -72,7 +75,7 @@ void UDialogueWidget::IncrementCharactersVisible()
 
 void UDialogueWidget::UpdateVisibleText()
 {
-	VisibleText = Text[Page].Mid(0, CharactersVisible);
+	VisibleText = CurrentText.Mid(0, CharactersVisible);
 	TextBlock->SetText(FText::FromString(VisibleText));
 }
 
@@ -87,7 +90,7 @@ void UDialogueWidget::StartText()
 void UDialogueWidget::AdvanceText()
 {
 	if (TextRunning) {
-		CharactersVisible = Text[Page].Len();
+		CharactersVisible = CurrentText.Len();
 		UpdateVisibleText();
 
 		GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
@@ -97,6 +100,7 @@ void UDialogueWidget::AdvanceText()
 		if (Page < Text.Num() - 1) {
 			Page++;
 			CharactersVisible = 0;
+			CurrentText = Text[Page].ToString();
 			UpdateVisibleText();
 			StartText();
 		}

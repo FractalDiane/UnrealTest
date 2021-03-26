@@ -3,20 +3,34 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "Utils/Macros.h"
 #include <Blueprint/UserWidget.h>
+#include <Engine/DataTable.h>
+
 #include "DialogueWidget.generated.h"
 
-/**
- * 
- */
+
+USTRUCT(BlueprintType)
+struct FDialogueTable : public FTableRowBase
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FText> DialogueText;
+};
+
+
 UCLASS()
 class BATTLESYSTEM_API UDialogueWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
 private:
-	TArray<FString> Text;
+	TArray<FText> Text;
 
+	FString CurrentText;
 	FString VisibleText;
 	int32 CharactersVisible = 0;
 	int32 Page = 0;
@@ -24,6 +38,10 @@ private:
 	FTimerHandle IncrementTimerHandle;
 	float TextInterval = 0.05f;
 	bool TextRunning = false;
+
+	float TextSoundPitch = 1.0f;
+	UPROPERTY(EditAnywhere)
+	class USoundBase* TextSound;
 
 	UPROPERTY(meta = (BindWidget))
 	class URichTextBlock* TextBlock = nullptr;
@@ -47,9 +65,11 @@ public:
 	virtual void NativeDestruct() override;
 
 	void SetName(const FText& Name);
-	void SetDialogueText(const TArray<FString>& _Text);
+	void SetDialogueText(const TArray<FText>& _Text);
 
 	void Start();
+
+	SETTER(float, TextSoundPitch);
 
 	FDialogueFinishedSignature OnDialogueFinished;
 

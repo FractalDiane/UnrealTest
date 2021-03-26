@@ -10,7 +10,6 @@
 // Sets default values
 AInteractible::AInteractible()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
@@ -49,7 +48,10 @@ void AInteractible::PlayerEnterArea(UPrimitiveComponent* OverlappedComponent, AA
 {
 	if (OtherActor->IsA(ACosmo::StaticClass())) {
 		PlayerInArea = true;
-		Cast<ACosmo>(OtherActor)->AddInteractibleInRange(this);
+		ACosmo* Player = Cast<ACosmo>(OtherActor);
+		Player->AddInteractibleInRange(this);
+		Player->GetPlayerHUD()->SetInteractPrompt(InteractPrompt);
+		Player->GetPlayerHUD()->ShowInteractHUD(true);
 	}
 }
 
@@ -58,6 +60,8 @@ void AInteractible::PlayerExitArea(UPrimitiveComponent* OverlappedComponent, AAc
 {
 	if (OtherActor->IsA(ACosmo::StaticClass())) {
 		PlayerInArea = false;
-		Cast<ACosmo>(OtherActor)->RemoveInteractibleInRange(this);
+		ACosmo* Player = Cast<ACosmo>(OtherActor);
+		Player->RemoveInteractibleInRange(this);
+		Player->GetPlayerHUD()->ShowInteractHUD(false);
 	}
 }

@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "Interactibles/Interactible.h"
+#include "DialogueWidget.h"
 
 #include "NPC.generated.h"
 
@@ -15,13 +17,18 @@ class BATTLESYSTEM_API ANPC : public AInteractible
 private:
 	UPROPERTY(EditAnywhere)
 	FString Name;
-	UPROPERTY(EditAnywhere, meta = (MultiLine = "true"))
-	TArray<FString> DialogueText;
-
 	UPROPERTY(EditAnywhere)
+	class UDataTable* DialogueTable;
+	UPROPERTY(EditAnywhere)
+	float TextSoundPitch = 1.0f;
+
+	TArray<FDialogueTable*> DialogueText;
+	int32 DialogueSet = 0;
+
+	UPROPERTY(EditDefaultsOnly)
 	class USkeletalMeshComponent* Model;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class UUserWidget> DialogueWidgetRef;
 
 	class UDialogueWidget* Dialogue;
@@ -41,5 +48,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void Interact() override;
+
+private:
 	void InteractFinish() override;
 };

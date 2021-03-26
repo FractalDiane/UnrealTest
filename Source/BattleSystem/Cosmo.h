@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 
+#include "UI/PlayerHUD.h"
 #include "Utils/Macros.h"
 
 #include "Cosmo.generated.h"
@@ -27,11 +28,13 @@ private:
 
 	bool AllowMovement = true;
 
-	//TArray<class AInteractible> InteractiblesInRange;
-	//TSet<class AInteractible*> InteractiblesInRange;
 	TArray<class AInteractible*> InteractiblesInRange;
 
-	// Components
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UUserWidget> PlayerHUDRef;
+
+	class UPlayerHUD* PlayerHUD;
+
 	UPROPERTY(EditAnywhere)
 	class USceneComponent* CameraPivot;
 	UPROPERTY(EditAnywhere)
@@ -52,8 +55,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	SETTER(bool, AllowMovement)
+	SETTER(bool, AllowMovement);
 
+	GETTER(UPlayerHUD*, PlayerHUD);
 	void AddInteractibleInRange(class AInteractible* Target);
 	void RemoveInteractibleInRange(class AInteractible* Target);
 

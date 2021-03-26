@@ -22,6 +22,9 @@ protected:
 	class USceneComponent* Root;
 
 	UPROPERTY(EditAnywhere)
+	FText InteractPrompt;
+
+	UPROPERTY(EditDefaultsOnly)
 	class USphereComponent* InteractArea;
 
 	bool PlayerInArea = false;

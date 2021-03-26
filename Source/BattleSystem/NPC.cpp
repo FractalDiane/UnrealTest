@@ -4,7 +4,6 @@
 #include "NPC.h"
 
 #include "Cosmo.h"
-#include "DialogueWidget.h"
 
 #include <Components/SkeletalMeshComponent.h>
 #include <Components/SphereComponent.h>
@@ -13,7 +12,6 @@
 // Sets default values
 ANPC::ANPC()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 	Model = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Model"));
@@ -25,6 +23,10 @@ void ANPC::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	TArray<FName> Rows = DialogueTable->GetRowNames();
+	for (int i = 0; i < Rows.Num(); i++) {
+		DialogueText.Add(DialogueTable->FindRow<FDialogueTable>(Rows[i], ""));
+	}
 }
 
 // Called every frame
@@ -42,16 +44,22 @@ void ANPC::Interact()
 	Dialogue = Cast<UDialogueWidget>(Widget);
 
 	Dialogue->SetName(FText::FromString(Name));
-	Dialogue->SetDialogueText(DialogueText);
+	//Dialogue->SetDialogueText(DialogueTable->FindRow<FDialogueTable>(DialogueTextRows[DialogueSet], "")->DialogueText);
+	Dialogue->SetDialogueText(DialogueText[DialogueSet]->DialogueText);
 
 	Widget->AddToViewport();
 	Dialogue->OnDialogueFinished.BindDynamic(this, &ANPC::InteractFinish);
+	Dialogue->SetTextSoundPitch(TextSoundPitch);
 	Dialogue->Start();
 }
 
 
 void ANPC::InteractFinish()
 {
+	if (DialogueSet < DialogueText.Num() - 1) {
+		DialogueSet++;
+	}
+
 	Dialogue->OnDialogueFinished.Unbind();
 	OnInteractionFinished.Execute();
 }
