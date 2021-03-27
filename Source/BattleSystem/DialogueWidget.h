@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "Utils/Macros.h"
+
 #include <Blueprint/UserWidget.h>
 #include <Engine/DataTable.h>
 
@@ -17,6 +18,10 @@ struct FDialogueTable : public FTableRowBase
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Name;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float SoundPitch;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FText> DialogueText;
 };

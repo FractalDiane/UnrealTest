@@ -16,11 +16,7 @@ class BATTLESYSTEM_API ANPC : public AInteractible
 
 private:
 	UPROPERTY(EditAnywhere)
-	FString Name;
-	UPROPERTY(EditAnywhere)
 	class UDataTable* DialogueTable;
-	UPROPERTY(EditAnywhere)
-	float TextSoundPitch = 1.0f;
 
 	TArray<FDialogueTable*> DialogueText;
 	int32 DialogueSet = 0;
@@ -44,9 +40,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 	void Interact() override;
 
 private:

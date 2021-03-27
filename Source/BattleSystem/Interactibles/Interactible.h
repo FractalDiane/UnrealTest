@@ -28,13 +28,11 @@ protected:
 	class USphereComponent* InteractArea;
 
 	bool PlayerInArea = false;
+	class ACosmo* Player = nullptr;
 
 	DECLARE_DYNAMIC_DELEGATE(FInteractionFinishedSignature);
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 	virtual void Interact();
 	
 	FInteractionFinishedSignature OnInteractionFinished;

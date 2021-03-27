@@ -29,33 +29,30 @@ void ANPC::BeginPlay()
 	}
 }
 
-// Called every frame
-void ANPC::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-
-}
 
 void ANPC::Interact()
 {
+	Super::Interact();
+
 	UUserWidget* Widget = CreateWidget(GetWorld(), DialogueWidgetRef, TEXT("Dialogue"));
 
 	Dialogue = Cast<UDialogueWidget>(Widget);
 
-	Dialogue->SetName(FText::FromString(Name));
-	//Dialogue->SetDialogueText(DialogueTable->FindRow<FDialogueTable>(DialogueTextRows[DialogueSet], "")->DialogueText);
-	Dialogue->SetDialogueText(DialogueText[DialogueSet]->DialogueText);
+	FDialogueTable* ThisRow = DialogueText[DialogueSet];
+	Dialogue->SetName(ThisRow->Name);
+	Dialogue->SetTextSoundPitch(ThisRow->SoundPitch);
+	Dialogue->SetDialogueText(ThisRow->DialogueText);
 
 	Widget->AddToViewport();
 	Dialogue->OnDialogueFinished.BindDynamic(this, &ANPC::InteractFinish);
-	Dialogue->SetTextSoundPitch(TextSoundPitch);
 	Dialogue->Start();
 }
 
 
 void ANPC::InteractFinish()
 {
+	Super::InteractFinish();
+
 	if (DialogueSet < DialogueText.Num() - 1) {
 		DialogueSet++;
 	}

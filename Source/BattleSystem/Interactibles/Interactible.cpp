@@ -28,27 +28,24 @@ void AInteractible::BeginPlay()
 	InteractArea->OnComponentEndOverlap.AddDynamic(this, &AInteractible::PlayerExitArea);
 }
 
-// Called every frame
-void AInteractible::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 
+void AInteractible::Interact()
+{
+	Player->GetPlayerHUD()->ShowInteractHUD(false);
 }
 
 
-void AInteractible::Interact()
-{}
-
-
 void AInteractible::InteractFinish()
-{}
+{
+	Player->GetPlayerHUD()->ShowInteractHUD(true);
+}
 
 
 void AInteractible::PlayerEnterArea(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor->IsA(ACosmo::StaticClass())) {
 		PlayerInArea = true;
-		ACosmo* Player = Cast<ACosmo>(OtherActor);
+		Player = Cast<ACosmo>(OtherActor);
 		Player->AddInteractibleInRange(this);
 		Player->GetPlayerHUD()->SetInteractPrompt(InteractPrompt);
 		Player->GetPlayerHUD()->ShowInteractHUD(true);
@@ -60,8 +57,8 @@ void AInteractible::PlayerExitArea(UPrimitiveComponent* OverlappedComponent, AAc
 {
 	if (OtherActor->IsA(ACosmo::StaticClass())) {
 		PlayerInArea = false;
-		ACosmo* Player = Cast<ACosmo>(OtherActor);
 		Player->RemoveInteractibleInRange(this);
 		Player->GetPlayerHUD()->ShowInteractHUD(false);
+		Player = nullptr;
 	}
 }
