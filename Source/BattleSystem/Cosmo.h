@@ -25,8 +25,9 @@ private:
 
 	FVector Motion = FVector::ZeroVector;
 	bool Running = false;
-
 	bool AllowMovement = true;
+
+	//class UCharacterAnimation* AnimationInst;
 
 	TArray<class AInteractible*> InteractiblesInRange;
 
@@ -57,13 +58,19 @@ public:
 
 	SETTER(bool, AllowMovement);
 
+	void StopMovement();
+
 	GETTER(UPlayerHUD*, PlayerHUD);
 	void AddInteractibleInRange(class AInteractible* Target);
 	void RemoveInteractibleInRange(class AInteractible* Target);
 
+	UFUNCTION()
+	void EndCutscene();
+
 private:
 	void StartRun();
 	void EndRun();
+	void SetAnimationBool(FName Field, bool Value);
 
 	void Interact();
 	UFUNCTION()

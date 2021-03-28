@@ -34,7 +34,7 @@ void ANPC::Interact()
 {
 	Super::Interact();
 
-	UUserWidget* Widget = CreateWidget(GetWorld(), DialogueWidgetRef, TEXT("Dialogue"));
+	UUserWidget* Widget = CreateWidget(GetWorld(), DialogueBlueprintRef, TEXT("Dialogue"));
 
 	Dialogue = Cast<UDialogueWidget>(Widget);
 

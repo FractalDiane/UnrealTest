@@ -25,7 +25,7 @@ private:
 	class USkeletalMeshComponent* Model;
 
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class UUserWidget> DialogueWidgetRef;
+	TSubclassOf<class UUserWidget> DialogueBlueprintRef;
 
 	class UDialogueWidget* Dialogue;
 

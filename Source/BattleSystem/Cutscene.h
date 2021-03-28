@@ -19,15 +19,19 @@ private:
 	UPROPERTY(EditAnywhere)
 	bool AutoPlay = false;
 
+	bool CutsceneStarted = false;
+
 	UPROPERTY(EditDefaultsOnly)
 	class UBoxComponent* CutsceneTrigger;
-	UPROPERTY(EditDefaultsOnly)
-	class ULevelSequencePlayer* SequencePlayer;
+
+	class ULevelSequencePlayer* CutscenePlayer;
 
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class UUserWidget> DialogueWidgetRef;
+	TSubclassOf<class UUserWidget> DialogueBlueprintRef;
 
 	class UDialogueWidget* DialogueObj;
+
+	DECLARE_DYNAMIC_DELEGATE(FCutsceneFinishedSignature);
 	
 public:	
 	// Sets default values for this actor's properties
@@ -41,10 +45,20 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	FCutsceneFinishedSignature OnCutsceneFinished;
+
+	void StartCutscene();
+
 	UFUNCTION(BlueprintCallable)
 	void Dialogue(class UDataTable* DialogueTable, FName Row);
 
 private:
 	UFUNCTION()
 	void ResumeCutscene();
+
+	UFUNCTION()
+	void CutsceneFinished();
+
+	UFUNCTION()
+	void PlayerEnterArea(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };

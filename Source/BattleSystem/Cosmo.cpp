@@ -4,6 +4,7 @@
 #include "Cosmo.h"
 
 #include "Interactibles/Interactible.h"
+#include "CharacterAnimation.h"
 
 #include <Components/SceneComponent.h>
 #include <Camera/CameraComponent.h>
@@ -51,41 +52,37 @@ void ACosmo::Tick(float DeltaTime)
 	// Camera movement
 	CameraPivot->AddLocalRotation(FRotator(0, -GetInputAxisValue("CameraH") * 60.0f * DeltaTime, 0));
 
-	if (!AllowMovement) {
-		return;
-	}
-
 	// Movement
 	float X = GetInputAxisValue("Forward");
 	float Y = GetInputAxisValue("Side");
-	
-	FTransform CamXform = Camera->GetComponentTransform();
-	FVector MotionTarget = FVector::ZeroVector;
-	MotionTarget += CamXform.GetRotation().GetAxisY() * Y;
-	MotionTarget -= CamXform.GetRotation().GetAxisX() * X;
-	MotionTarget.Normalize();
 
-	MotionTarget.Z = 0.0f;
-	Motion = FMath::Lerp(Motion, MotionTarget, DeltaTime * 10.0f);
-	
-	SetActorLocation(GetActorLocation() + (Motion * SpeedLimit + Motion * SpeedLimit * Running) * DeltaTime);
+	bool Moving = false;
+	if (AllowMovement) {
+		FTransform CamXform = Camera->GetComponentTransform();
+		FVector MotionTarget = FVector::ZeroVector;
+		MotionTarget += CamXform.GetRotation().GetAxisY() * Y;
+		MotionTarget -= CamXform.GetRotation().GetAxisX() * X;
+		MotionTarget.Normalize();
 
-	bool Moving = !MotionTarget.IsZero();
+		MotionTarget.Z = 0.0f;
+		Motion = FMath::Lerp(Motion, MotionTarget, DeltaTime * 10.0f);
 
-	// Rotation
-	if (Moving) {
-		FQuat QFrom = Model->GetComponentRotation().Quaternion();
-		FQuat QTo{ FVector(0, 0, 1), FMath::Atan2(-MotionTarget.X, MotionTarget.Y) + FMath::DegreesToRadians(180.0f) };
+		SetActorLocation(GetActorLocation() + (Motion * SpeedLimit + Motion * SpeedLimit * Running) * DeltaTime);
 
-		Model->SetWorldRotation(FQuat::Slerp(QFrom, QTo, DeltaTime * 10.0f));
+		Moving = !MotionTarget.IsZero();
+
+		// Rotation
+		if (Moving) {
+			FQuat QFrom = Model->GetComponentRotation().Quaternion();
+			FQuat QTo{ FVector(0, 0, 1), FMath::Atan2(-MotionTarget.X, MotionTarget.Y) + FMath::DegreesToRadians(180.0f) };
+
+			Model->SetWorldRotation(FQuat::Slerp(QFrom, QTo, DeltaTime * 10.0f));
+		}
 	}
 	
 	// Animation
-	UAnimInstance* AnimInst = Model->GetAnimInstance();
-	FBoolProperty* WalkingVar = FindFProperty<FBoolProperty>(AnimInst->GetClass(), "Walking");
-	FBoolProperty* RunningVar = FindFProperty<FBoolProperty>(AnimInst->GetClass(), "Running");
-	WalkingVar->SetPropertyValue_InContainer(AnimInst, Moving);
-	RunningVar->SetPropertyValue_InContainer(AnimInst, Running);
+	SetAnimationBool("Walking", Moving);
+	SetAnimationBool("Running", Running);
 }
 
 // Called to bind functionality to input
@@ -99,6 +96,14 @@ void ACosmo::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ACosmo::StartRun);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &ACosmo::EndRun);
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ACosmo::Interact);
+}
+
+
+void ACosmo::StopMovement()
+{
+	AllowMovement = false;
+	Motion = FVector::ZeroVector;
+	SetAnimationBool("Walking", false);
 }
 
 
@@ -126,10 +131,18 @@ void ACosmo::EndRun()
 }
 
 
+void ACosmo::SetAnimationBool(FName Field, bool Value)
+{
+	UAnimInstance* AnimInst = Model->GetAnimInstance();
+	FBoolProperty* Prop = FindFProperty<FBoolProperty>(AnimInst->GetClass(), Field);
+	Prop->SetPropertyValue_InContainer(AnimInst, Value);
+}
+
+
 void ACosmo::Interact()
 {
 	if (AllowMovement && InteractiblesInRange.Num() > 0) {
-		AllowMovement = false;
+		StopMovement();
 		InteractiblesInRange[0]->OnInteractionFinished.BindDynamic(this, &ACosmo::EndInteract);
 		InteractiblesInRange[0]->Interact();
 	}
@@ -139,5 +152,11 @@ void ACosmo::Interact()
 void ACosmo::EndInteract()
 {
 	InteractiblesInRange[0]->OnInteractionFinished.Unbind();
+	AllowMovement = true;
+}
+
+
+void ACosmo::EndCutscene()
+{
 	AllowMovement = true;
 }
