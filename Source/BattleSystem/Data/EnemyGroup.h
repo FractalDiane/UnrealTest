@@ -5,22 +5,34 @@
 #include "CoreMinimal.h"
 
 #include "CharacterData.h"
+#include "../Utils/Macros.h"
 
 #include <Engine/DataAsset.h>
 
 #include "EnemyGroup.generated.h"
 
-/**
- * 
- */
+
+USTRUCT()
+struct FEnemyGroupEntry {
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere)
+	UCharacterData* Enemy;
+
+	UPROPERTY(EditAnywhere)
+	FVector Position;
+};
+
 UCLASS()
 class BATTLESYSTEM_API UEnemyGroup : public UDataAsset
 {
 	GENERATED_BODY()
 
+private:
 	UPROPERTY(EditAnywhere)
-	TArray<UCharacterData*> Enemies;
-	
-	UPROPERTY(EditAnywhere)
-	TArray<FVector> EnemyPositions;
+	TArray<FEnemyGroupEntry> Enemies;
+
+public:
+	GETTER(const TArray<FEnemyGroupEntry>&, Enemies);
 };
