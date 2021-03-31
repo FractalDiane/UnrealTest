@@ -15,6 +15,6 @@ class BATTLESYSTEM_API UAbilityListUI : public UScrollBox
 	GENERATED_BODY()
 	
 public:
-	void AddAbility(FText AbilityName, class UTexture2D* AbilityIcon, class UTexture2D* ButtonTexture);
+	void AddAbility(class UAbility* Ability, class UTexture2D* ButtonTexture);
 	void ClearList();
 };

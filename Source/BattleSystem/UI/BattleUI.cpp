@@ -26,6 +26,9 @@ void UBattleUI::NativeConstruct()
 	Controller->SetShowMouseCursor(true);
 	UWidgetBlueprintLibrary::SetInputMode_GameAndUI(Controller, this);
 	Controller->SetIgnoreLookInput(true);
+
+	EventSpinPentagram.BindDynamic(this, &UBattleUI::SpinPentagram);
+	BindToAnimationFinished(AnimClickAttack, EventSpinPentagram);
 }
 
 
@@ -40,7 +43,7 @@ void UBattleUI::NativeDestruct()
 void UBattleUI::ClickButtonAttack()
 {
 	for (auto* Ability : CurrentCharacter->GetData()->GetAbilities()) {
-		AbilityList->AddAbility(Ability->GetAbilityName(), Ability->GetAbilityIcon(), ButtonTexture);
+		AbilityList->AddAbility(Ability, ButtonTexture);
 	}
 
 	PlayAnimation(AnimClickAttack);
@@ -65,4 +68,10 @@ void UBattleUI::ClickButtonNegotiate()
 void UBattleUI::ClickButtonTactics()
 {
 
+}
+
+
+void UBattleUI::SpinPentagram()
+{
+	PlayAnimation(AnimSpinPentagram, 0.f, 0);
 }

@@ -42,8 +42,12 @@ private:
 	class UWidgetAnimation* AnimClickAttack = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	class UWidgetAnimation* AnimShowAbilityList = nullptr;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	class UWidgetAnimation* AnimSpinPentagram = nullptr;
 
 	ABattleCharacter* CurrentCharacter;
+
+	FWidgetAnimationDynamicEvent EventSpinPentagram;
 
 public:
 	virtual void NativeConstruct() override;
@@ -62,4 +66,7 @@ private:
 	void ClickButtonNegotiate();
 	UFUNCTION()
 	void ClickButtonTactics();
+
+	UFUNCTION()
+	void SpinPentagram();
 };

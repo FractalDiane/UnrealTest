@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 
+#include "../Utils/Macros.h"
+
 #include <Engine/DataAsset.h>
 #include <Engine/Texture2D.h>
 
@@ -23,7 +25,11 @@ private:
 	UPROPERTY(EditAnywhere)
 	UTexture2D* Icon;
 
+	UPROPERTY(EditAnywhere, DisplayName = "EP Cost")
+	unsigned int EPCost;
+
 public:
 	inline FText GetAbilityName() { return Name; }
 	inline UTexture2D* GetAbilityIcon() { return Icon; }
+	GETTER(unsigned int, EPCost);
 };
